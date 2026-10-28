@@ -12,6 +12,7 @@ if errorlevel 1 (
 if errorlevel 1 goto failed
 exit /b 0
 :failed
+if exist "state\startup-repair.json" ".venv\Scripts\python.exe" -X utf8 -c "import json; print(json.load(open('state/startup-repair.json',encoding='utf-8'))['reason'])"
 echo 启动未完成，请检查 Python 安装与网络连接，或查看 state\hub.log。
 pause
 exit /b 1

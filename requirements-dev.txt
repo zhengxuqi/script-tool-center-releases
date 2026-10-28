@@ -1,2 +1,2 @@
 -r requirements.txt
--r app/versions/1.0.5/requirements.txt
+-r app/versions/1.0.6/requirements.txt

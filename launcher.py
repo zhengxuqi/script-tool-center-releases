@@ -57,6 +57,49 @@ def start(version, port):
                                 stdout=handle, stderr=handle, cwd=ROOT, creationflags=flags)
 
 
+def fallback_compatibility(installed, version):
+    """Use only trusted manifests and stdlib so recovery also works when app imports fail."""
+    def numbers(value):
+        if not isinstance(value, str) or not re.fullmatch(r'\d+\.\d+\.\d+', value):
+            raise ValueError('版本号无效')
+        return tuple(map(int, value.split('.')))
+    problems = []
+    try:
+        target = numbers(version)
+        for identifier, record in installed.items():
+            if identifier == 'hub':
+                continue
+            if not re.fullmatch(r'[a-z][a-z0-9-]{0,39}', identifier):
+                raise ValueError('工具编号无效')
+            current = record['current']
+            numbers(current)
+            manifest = json.loads((ROOT / 'tools' / identifier / 'versions' / current / 'tool.json').read_text(encoding='utf-8-sig'))
+            if not isinstance(manifest, dict) or manifest.get('id') != identifier or manifest.get('version') != current:
+                raise ValueError('工具清单与版本记录不一致')
+            minimum = manifest.get('min_hub_version', '1.0.0')
+            if numbers(minimum) > target:
+                problems.append(f'{manifest.get("name", identifier)} {current} 需要工具中心 {minimum}')
+    except (OSError, ValueError, KeyError, TypeError):
+        problems.append('无法确认已安装工具的兼容性，请检查工具版本文件是否完整')
+    return problems
+
+
+def save_registry(path, installed):
+    temporary = path.with_suffix('.tmp')
+    temporary.write_text(json.dumps(installed, ensure_ascii=False, indent=2), encoding='utf-8')
+    os.replace(temporary, path)
+
+
+def require_safe_fallback(installed, previous):
+    problems = fallback_compatibility(installed, previous)
+    if problems:
+        message = ('新版本启动失败，无法安全回退到 ' + str(previous) + '：' + '；'.join(problems)
+                   + '。已保留当前版本记录和个人数据，请使用完整安装包或对应源码修复。')
+        (ROOT / 'state/startup-repair.json').write_text(json.dumps({
+            'reason': message, 'installed': installed, 'fallback': previous}, ensure_ascii=False, indent=2), encoding='utf-8')
+        raise RuntimeError(message)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--port', type=int, default=18760)
@@ -104,10 +147,10 @@ def main():
         previous = installed['hub'].get('previous')
         if not previous:
             raise RuntimeError('工具中心启动失败，请查看 state/hub.log。')
+        require_safe_fallback(installed, previous)
+        original = json.loads(json.dumps(installed))
         installed['hub'] = {'current': previous, 'previous': active}
-        temporary = config_path.with_suffix('.tmp')
-        temporary.write_text(json.dumps(installed, ensure_ascii=False, indent=2), encoding='utf-8')
-        os.replace(temporary, config_path)
+        save_registry(config_path, installed)
         process = start(previous, args.port)
         for _ in range(60):
             value = health(args.port)
@@ -116,8 +159,15 @@ def main():
                 break
             time.sleep(.25)
         if not ready:
+            if process.poll() is None:
+                process.terminate()
+                process.wait(timeout=10)
+            save_registry(config_path, original)
             raise RuntimeError('启动与回退均未成功，请查看 state/hub.log。')
         (ROOT / 'state/startup-rollback.txt').write_text('新版本启动失败，工具中心已自动恢复上一版本。', encoding='utf-8')
+    else:
+        (ROOT / 'state/startup-repair.json').unlink(missing_ok=True)
+        (ROOT / 'state/startup-rollback.txt').unlink(missing_ok=True)
     if not args.no_open:
         webbrowser.open(f'http://127.0.0.1:{args.port}')
 

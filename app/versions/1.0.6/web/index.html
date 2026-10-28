@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="local-token" content="__LOCAL_TOKEN__"><title>脚本工具中心</title><link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script></head>
+<body>
+<aside class="sidebar">
+ <a class="brand" href="#library"><span class="brand-mark">S<span>·</span></span><span>脚本工具中心<small>SCRIPT WORKSPACE</small></span></a>
+ <div class="space-label">个人工作空间 <span>LOCAL</span></div>
+ <nav aria-label="主导航">
+  <a href="#library" data-nav="library"><span class="nav-icon">▦</span>工具库</a>
+  <a href="#tasks" data-nav="tasks"><span class="nav-icon">≋</span>任务中心 <b id="queue-count"></b></a>
+  <a href="#results" data-nav="results"><span class="nav-icon">▤</span>结果文件</a>
+  <a href="#updates" data-nav="updates"><span class="nav-icon">↻</span>版本更新 <i id="update-dot"></i></a>
+  <a href="#settings" data-nav="settings"><span class="nav-icon">⚙</span>偏好设置</a>
+ </nav>
+ <div class="sidebar-bottom"><div class="local-status"><i></i><span id="connection">本地服务已连接</span></div><p>账号登录与采集在此电脑完成</p><div class="sidebar-version">工具中心 <span id="hub-version">v1.0.0</span></div></div>
+</aside>
+<div class="workspace"><header class="topbar"><div>工作空间 <span>/</span> <b id="breadcrumb">工具库</b></div><div class="machine-label"><span class="device-icon">▣</span> 本机运行 <span class="avatar">我</span></div></header><div id="session-notice" class="session-notice" role="status" hidden><span>工具中心服务已更新，当前页面内容仍保留。请确认填写内容已保存，再刷新连接。</span><button data-command="refresh-session">刷新并重新连接</button></div><main id="main" tabindex="-1"></main><footer>让重复的工作，交给工具。<span>配置与结果保存在本机</span></footer></div>
+<div id="toast" role="status" aria-live="polite" hidden></div>
+<div id="reconnecting" class="overlay" hidden><div class="panel"><span class="spinner"></span><h2>正在重启工具中心</h2><p>页面会在服务就绪后自动重新连接。</p></div></div>
+</body></html>

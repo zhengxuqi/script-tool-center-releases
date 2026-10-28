@@ -7,7 +7,7 @@ import tempfile
 from unittest.mock import Mock, patch
 
 ROOT = Path(__file__).resolve().parent
-sys.path.insert(0, str(ROOT / 'app/versions/1.0.3'))
+sys.path.insert(0, str(ROOT / 'app/versions/1.0.6'))
 from hubcore.shared_browser import ensure_shared_browser
 import psutil
 
@@ -54,6 +54,39 @@ class SharedBrowserTests(unittest.TestCase):
 
 
 class SharedQueueTests(unittest.TestCase):
+    def test_status_poll_contention_does_not_release_shared_browser(self):
+        import threading
+        from test_hub import seed, eventually
+        from hubcore.runtime import TaskQueue
+        from hubcore.pdd_portal import PDDPortal
+        with tempfile.TemporaryDirectory() as directory:
+            store = seed(Path(directory)); env = Mock(); env.ensure.return_value = Path(sys.executable)
+            queue = TaskQueue(store, env)
+            portal = PDDPortal(store, queue, 'test', auto_browser=False)
+            portal.process = Mock(); portal.process.poll.return_value = None
+            queue.pdd_portal = portal
+            entered, release = threading.Event(), threading.Event()
+            status = {'browserBusy': True, 'browserConnected': True}
+            def request(*args, **kwargs):
+                entered.set(); release.wait(5)
+                return SimpleNamespace(json=lambda: dict(status))
+            portal._request = request
+            thread = threading.Thread(target=portal.info)
+            thread.start(); self.assertTrue(entered.wait(2))
+            try:
+                self.assertTrue(portal.info()['busy'])
+                self.assertFalse(portal.info()['status_known'])
+                job = queue.submit('boundary', 'collect', {'steps': 1})
+                eventually(lambda: store.job(job['id'])['message'].startswith('等待拼多多'))
+                env.ensure.assert_not_called()
+            finally:
+                release.set(); thread.join(2)
+            self.assertTrue(portal.info()['busy'])
+            env.ensure.assert_not_called()
+            status['browserBusy'] = False
+            eventually(lambda: store.job(job['id'])['status'] == 'completed')
+            env.ensure.assert_called_once()
+
     def test_queue_waits_for_pdd_and_waiting_jobs_remain_cancellable(self):
         from test_hub import seed, eventually
         from hubcore.runtime import TaskQueue

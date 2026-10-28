@@ -14,8 +14,8 @@ from pathlib import Path
 from unittest.mock import Mock
 
 ROOT=Path(__file__).resolve().parent
-APP=ROOT/'app/versions/1.0.5'
-SOURCE=ROOT/'tools/dmp/versions/1.0.2'
+APP=ROOT/'app/versions/1.0.6'
+SOURCE=ROOT/'tools/dmp/versions/1.0.3'
 sys.path.insert(0,str(APP))
 from hub import Application,Handler,ThreadingHTTPServer
 from tool_sdk import atomic_json
@@ -25,8 +25,8 @@ class PortalTests(unittest.TestCase):
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory()
         self.root=Path(self.temp.name)
-        atomic_json(self.root/'state/installed.json',{'hub':{'current':'1.0.1'},'boundary':{'current':'1.0.0'},'dmp':{'current':'1.0.2'}})
-        target=self.root/'tools/dmp/versions/1.0.2'
+        atomic_json(self.root/'state/installed.json',{'hub':{'current':'1.0.1'},'boundary':{'current':'1.0.0'},'dmp':{'current':'1.0.3'}})
+        target=self.root/'tools/dmp/versions/1.0.3'
         shutil.copytree(SOURCE,target,ignore=shutil.ignore_patterns('__pycache__','defaults'))
         boundary=self.root/'tools/boundary/versions/1.0.0'
         boundary.mkdir(parents=True)
@@ -114,6 +114,66 @@ class PortalTests(unittest.TestCase):
         self.assertEqual(self.app.store.job(queued['id'])['status'],'cancelled')
         state=json.loads(self.request('/tools/dmp/api/state')[1])
         self.assertFalse(state['task']['running'])
+
+    def test_platform_browser_overrides_page_and_updates_without_sidecar_restart(self):
+        self.assertEqual(self.request('/tools/dmp/api/state')[0],200)
+        process=self.app.dmp_portal.process.pid
+        payload={**self.params,'user_data_dir':str(self.root/'wrong-page-profile'),'port':9999}
+        self.assertEqual(self.request('/tools/dmp/api/settings',payload)[0],200)
+        state=json.loads(self.request('/tools/dmp/api/state')[1])
+        self.assertEqual(state['settings']['user_data_dir'],self.app.store.config['profile'])
+        self.assertEqual(state['settings']['port'],self.app.store.config['port'])
+        selected=str(self.root/'new-platform-profile')
+        self.assertEqual(self.request('/api/settings',{'profile':selected,'port':9352,'repository':''})[0],200)
+        preview=json.loads(self.request('/tools/dmp/api/preview',payload)[1])
+        self.assertEqual(preview['settings']['user_data_dir'],selected)
+        self.assertEqual(preview['settings']['port'],9352)
+        self.assertEqual(self.app.dmp_portal.process.pid,process)
+        self.app.tasks.submit('boundary','collect',{})
+        self.assertEqual(self.request('/tools/dmp/api/start',payload)[0],200)
+        queued=next(j for j in self.app.store.jobs() if j['tool_id']=='dmp')
+        self.assertEqual(queued['params']['_portal_browser'],{'profile':selected,'port':9352})
+        self.assertEqual(queued['browser'],{'profile':selected,'port':9352})
+        self.request('/tools/dmp/api/stop',{})
+
+    def test_resume_uses_platform_snapshot_instead_of_old_checkpoint_browser(self):
+        import subprocess
+        program='''import json,os
+from pathlib import Path
+from unittest.mock import Mock,patch
+import portal_service as service
+data=Path(os.environ['TOOL_DATA_DIR'])
+selected={'profile':str(data/'platform-profile'),'port':9352}
+app=service.ManagedApplication(data,data/'resume-workspace',Mock(),lambda:dict(selected))
+params=json.loads(os.environ['TEST_DMP_PARAMS'])
+params.update(user_data_dir=str(data/'legacy-wrong-profile'),port=9999)
+settings=service.original.normalize_settings(params,app.catalog,app.price_presets,app.category_template_assignments)
+service.original.save_progress(app.outputs/service.original.PROGRESS_NAME,settings,[])
+app.resume(service.original.PROGRESS_NAME)
+ticket=app.active_ticket
+accepted=dict(app.entries[ticket]['browser'])
+assert accepted==selected
+selected.update(profile=str(data/'later-profile'),port=9353)
+with patch.object(service.Context,'verify_browser'),patch.object(service.original.LocalApplication,'collect') as collect:
+ app.execute(ticket);app.worker.join(5)
+ assert not app.worker.is_alive()
+ actual=collect.call_args.args[0]
+ assert actual['user_data_dir']==accepted['profile'] and actual['port']==accepted['port']
+assert app.entries[ticket]['phase']=='finished'
+'''
+        env=dict(os.environ)
+        env.update(PYTHONPATH=os.pathsep.join((str(APP),str(SOURCE))),
+                   TOOL_DATA_DIR=str(self.root/'state/tools/dmp'),TEST_DMP_PARAMS=json.dumps(self.params))
+        result=subprocess.run([sys.executable,'-X','utf8','-c',program],cwd=SOURCE,env=env,
+                              capture_output=True,timeout=20)
+        self.assertEqual(result.returncode,0,result.stderr.decode('utf-8',errors='replace'))
+
+    def test_stale_browser_submission_is_rejected_before_queuing(self):
+        self.assertEqual(self.request('/tools/dmp/api/state')[0],200)
+        status,body,_=self.request('/api/internal/dmp-submit',{'ticket':'a'*32,'kind':'coverage',
+            'browser':{'profile':str(self.root/'stale-profile'),'port':9999}})
+        self.assertEqual(status,400,body)
+        self.assertFalse(self.app.store.unfinished())
 
 
 class OriginalSourceTests(unittest.TestCase):

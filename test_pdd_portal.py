@@ -14,7 +14,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parent
-sys.path.insert(0, str(ROOT / 'app/versions/1.0.5'))
+sys.path.insert(0, str(ROOT / 'app/versions/1.0.6'))
 from hub import Application, Handler, ThreadingHTTPServer
 from tool_sdk import atomic_json
 from openpyxl import load_workbook

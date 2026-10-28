@@ -6,7 +6,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parent
-sys.path.insert(0, str(ROOT / 'app/versions/1.0.4'))
+sys.path.insert(0, str(ROOT / 'app/versions/1.0.6'))
 from tool_sdk import DEFAULT_BROWSER_PROFILE, ensure_browser_directory, atomic_json
 from hubcore.storage import Store
 

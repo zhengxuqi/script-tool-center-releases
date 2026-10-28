@@ -1,0 +1,14 @@
+/* Visual tokens only. Keep the original grid, tables, controls and breakpoints. */
+:root{--ink:#1c3031;--muted:#718181;--line:#e3e9e7;--brand:#19765b;--pale:#edf5f0;--bg:#f5f7f6}
+body{font-family:"Segoe UI","Microsoft YaHei",sans-serif}
+button,input,textarea,select{border-color:#dce5de}
+.card{box-shadow:none;border-radius:10px}
+.primary:hover{background:#125e48}
+.mode{background:#edf2ee}
+.category-table th{background:#f4f7f3}
+.category-table .category-row.active{background:#edf5f0}
+.category-table .category-editor-slot{background:#f5f8f4}
+.toast{background:#243b2e;border-radius:7px}
+pre{background:#f5f8f3;color:#64775d}
+.review{max-height:var(--tool-center-review-height,55vh)}
+dialog{max-height:var(--tool-center-dialog-height,calc(100vh - 50px))}

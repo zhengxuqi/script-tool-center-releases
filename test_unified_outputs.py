@@ -10,7 +10,7 @@ from types import SimpleNamespace
 from unittest.mock import Mock
 
 ROOT = Path(__file__).resolve().parent
-sys.path.insert(0, str(ROOT / 'app/versions/1.0.5'))
+sys.path.insert(0, str(ROOT / 'app/versions/1.0.6'))
 from test_hub import seed, eventually
 from hubcore.runtime import TaskQueue
 from hubcore.dmp_portal import DMPPortal
