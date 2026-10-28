@@ -1,0 +1,1 @@
+{"id":"boundary","name":"边界 BI · 词根分析","version":"1.0.0","description":"自选类目与周期，采集词根和关键词并导出 Excel。","entry":"adapter.py","min_hub_version":"1.0.0","actions":["browser","categories","time","collect"],"supports_resume":false}

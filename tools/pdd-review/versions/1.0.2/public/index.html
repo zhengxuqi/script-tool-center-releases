@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>拼多多评论采集器</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div>
+        <p class="eyebrow">PINDUODUO WEB · LOCAL</p>
+        <h1>拼多多评论采集器</h1>
+        <p class="subtitle">启动后自动打开拼多多。您手动选择商品，再点击按钮自动采集评论。</p>
+      </div>
+      <div class="header-actions">
+        <span class="login-state">工具中心 · 本地运行</span>
+        <div id="overallState" class="state-pill waiting">等待启动浏览器</div>
+      </div>
+    </header>
+
+    <section class="status-grid">
+      <article class="card metric">
+        <span>共享 Chrome</span>
+        <strong id="browserState">未启动</strong>
+        <small id="browserMessage">启动工具后自动打开</small>
+      </article>
+      <article class="card metric">
+        <span>评价页面</span>
+        <strong id="sessionState">未捕获</strong>
+        <small id="sessionDetail">请在网页中进入商品评价页</small>
+      </article>
+      <article class="card metric">
+        <span>已识别商品</span>
+        <strong id="productCount">0</strong>
+        <small>自动去重保存</small>
+      </article>
+      <article class="card metric">
+        <span>已保存评论</span>
+        <strong id="reviewCount">0</strong>
+        <small>本地 SQLite</small>
+      </article>
+    </section>
+
+    <section class="workspace">
+      <article class="card control-card">
+        <div class="section-title">
+          <div>
+            <p class="eyebrow">COLLECT</p>
+            <h2>抓取当前商品</h2>
+          </div>
+        </div>
+        <div class="manual-steps">
+          <p><strong>1</strong> 在自动打开的共享 Chrome 中登录拼多多</p>
+          <p><strong>2</strong> 搜索并打开您要采集的商品详情页</p>
+          <p><strong>3</strong> 回到这里点击“抓取当前商品”</p>
+        </div>
+        <button id="openBrowserButton" class="secondary wide-button">打开拼多多</button>
+        <p id="selectedGoods" class="hint">尚未检测到商品页面</p>
+        <button id="startButton" class="primary">抓取当前商品</button>
+        <div class="settings-row">
+          <label>评论数量<input id="maxReviews" type="number" min="1" max="10000" value="100"></label>
+          <label>页间隔（毫秒）<input id="delayMs" type="number" min="500" max="30000" value="1400"></label>
+          <label class="toggle"><input id="latestFirst" type="checkbox" checked><span>勾选抓取最新，不勾选默认抓取</span></label>
+        </div>
+        <p id="formMessage" class="form-message"></p>
+      </article>
+
+      <article class="card progress-card">
+        <div class="section-title">
+          <div>
+            <p class="eyebrow">PROGRESS</p>
+            <h2>当前进度</h2>
+          </div>
+          <span id="jobBadge" class="tag">空闲</span>
+        </div>
+        <div id="currentJob" class="empty-state">
+          <div class="pulse-icon">◎</div>
+          <p>等待捕获评论请求</p>
+        </div>
+        <div class="queue-line"><span>等待队列</span><strong id="queueText">无</strong></div>
+        <div class="export-row">
+          <button id="exportButton" class="secondary">导出选中商品</button>
+          <button id="clearButton" class="danger">清空所有记录</button>
+        </div>
+      </article>
+    </section>
+
+    <section class="card table-card">
+      <div class="section-title">
+        <div>
+          <p class="eyebrow">RESULTS</p>
+          <h2>商品汇总</h2>
+        </div>
+          <span class="privacy">登录状态仅保存在本机共享 Chrome</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th><input id="selectAllProducts" type="checkbox" aria-label="全选商品"></th><th>商品 ID</th><th>评论数</th><th>最后采集时间</th></tr></thead>
+          <tbody id="productRows"><tr><td colspan="4" class="muted">暂无数据</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>

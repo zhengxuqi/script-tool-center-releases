@@ -1,0 +1,1 @@
+{"id":"dmp","name":"达摩盘 · 自定义圈人","version":"1.0.1","description":"保留原页面的类目勾选、金额配置表和采集流程，统一管理覆盖人数采集。","entry":"adapter.py","min_hub_version":"1.0.1","actions":["browser","categories","collect","preview"],"supports_resume":true,"ui":"original"}

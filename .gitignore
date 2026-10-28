@@ -1,0 +1,41 @@
+.venv/
+__pycache__/
+browser-profile/
+settings.json
+outputs/
+analysis/node_modules/
+*.tmp
+state/
+runtime/
+updates/
+dist/
+*.pem
+!trust/release-public-key.pem
+*.sqlite3*
+analysis/
+
+# Accounts, local secrets and captured traffic
+.env
+.env.*
+!.env.example
+!**/.env.example
+*.key
+*.pfx
+*.p12
+*.db
+*.db-*
+*.sqlite
+*.sqlite-*
+*.har
+*.saz
+cookies*.json
+cookies*.txt
+
+# Downloaded dependencies and browser user data
+node_modules/
+browser-profile-chrome/
+User Data/
+*.log
+.pytest_cache/
+.coverage
+htmlcov/

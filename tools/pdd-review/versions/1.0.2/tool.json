@@ -1,0 +1,1 @@
+{"id": "pdd-review", "name": "拼多多 · 评论采集", "version": "1.0.2", "description": "保留原评论采集页面，手动选择商品、自动采集并导出 Excel；暂不使用钉钉登录。", "entry": "adapter.py", "min_hub_version": "1.0.5", "actions": ["collect"], "supports_resume": false, "ui": "pdd-original", "runtime": "node", "browser_policy": "shared"}

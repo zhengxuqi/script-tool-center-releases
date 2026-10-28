@@ -1,0 +1,6 @@
+{
+  "hub": {"current": "1.0.5", "previous": null},
+  "boundary": {"current": "1.0.0", "previous": null},
+  "dmp": {"current": "1.0.2", "previous": null},
+  "pdd-review": {"current": "1.0.2", "previous": null}
+}

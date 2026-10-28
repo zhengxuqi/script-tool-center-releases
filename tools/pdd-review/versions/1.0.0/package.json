@@ -1,0 +1,19 @@
+{
+  "name": "pdd-review-collector",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Local Pinduoduo web review collector powered by browser automation",
+  "scripts": {
+    "start": "node src/server.js",
+    "check": "node --check src/server.js && node --check src/browser-automation.js && node --check src/collector.js && node --check src/database.js && node --check src/formatters.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "playwright-core": "^1.55.0"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

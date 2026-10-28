@@ -1,0 +1,11 @@
+/* Color and typography only; original controls, grids and sizing are retained. */
+:root { color-scheme:light; --bg:#f7f9f7; --panel:#fff; --panel-2:#f1f5f1; --line:#dce5dc;
+ --text:#26392e; --muted:#738175; --green:#48815c; --green-2:#336e48; --amber:#976a27; --red:#b54848;
+ font-family:"Microsoft YaHei UI",system-ui,sans-serif; }
+body { background:var(--bg); }
+body::before { background-image:none; }
+.card { background:var(--panel); box-shadow:0 8px 25px rgba(37,65,43,.035); }
+label { color:#506354; }
+textarea,input[type="number"] { background:#fff; }
+.primary { color:#fff; }
+.danger { color:#ad4848; }

@@ -1,0 +1,1 @@
+{"id":"dmp","name":"达摩盘 · 自定义圈人","version":"1.0.0","description":"选择多个类目、日期和金额区间，批量查询覆盖人数。","entry":"adapter.py","min_hub_version":"1.0.0","actions":["browser","categories","collect","preview"],"supports_resume":true}

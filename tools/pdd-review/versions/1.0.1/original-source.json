@@ -1,0 +1,15 @@
+{
+  "files": {
+    "package.json": "85ed023f4e07e7eb327ea7df36634d172ea5e6d9023899917361652f2e4469f3",
+    "package-lock.json": "6ca7d8f02a527fb225ba3cd326acb014fae16c3779bd640608305b6302e29021",
+    "public/index.html": "622f17241d13ba2987fee52f1906b9d47800d7fd4b59e8a0c82aea745c79eca8",
+    "public/app.js": "194d34269bf3b9d77213b2d1e0f63ee1b212c0df68e85c7426725a744a8abf6e",
+    "public/styles.css": "acdfb542562e4590e6a29c6eb4f81b48f84eb1fc6a325ebb765f225f7b8f8f3e",
+    "src/server.js": "ee6979829d0fb13503b1fc80b35a0756e5c1340f7823ce63a39260b75f0a46d8",
+    "src/browser-automation.js": "f50cf2e4e9c9969d307c00ef619c7eacd7e549650206f6a211f12399151febbc",
+    "src/collector.js": "ffd3621c9b2942c9f890689ee0c287a9ebd6e024c0634214ea4b0d64efb287be",
+    "src/database.js": "61ed05da0bbd1d09f172943ffb3322886c7aa725e4bee4d2ef083309411b6315",
+    "src/formatters.js": "c9c8d6ec727fce922145c173139f73e69f6a9b5b7a011a9704af310766497b8d",
+    "test/collector.test.js": "be63859cd6cc21aa2efb0df7799dcce5495ced8f8dda81a400be25d453096941"
+  }
+}
